@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2a1030">
+<title>Una carta para ti ♥</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500&family=Pinyon+Script&display=swap" rel="stylesheet">
+<style>
+:root{--wine:#5b1a3c;--rose:#d4577a;--gold:#e9bfa0;--ivory:#fbf3ea;--ink:#4a2433;--ease:cubic-bezier(.22,.8,.2,1);box-sizing:border-box;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{overflow:hidden;color:var(--ivory);font-family:'Jost',system-ui,sans-serif;background:radial-gradient(ellipse at 50% 110%,#d4657d 0,transparent 55%),radial-gradient(ellipse at 12% 0,#6b2150 0,transparent 55%),linear-gradient(180deg,#26102e,#3d1239 60%,#5b1a3c);display:grid;place-items:center}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+canvas{position:fixed;inset:0;pointer-events:none}#bg{z-index:1}#fx{z-index:50}
+
+.stage{position:relative;z-index:2;display:grid;place-items:center;gap:30px;perspective:900px;transition:transform 1s var(--ease),opacity .8s}
+.env{position:relative;width:min(310px,78vw);aspect-ratio:3/2;transform-style:preserve-3d;transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .25s ease-out;filter:drop-shadow(0 26px 40px #0008)}
+.env i{position:absolute;inset:0;display:block}
+.back{background:#d9a58f;border-radius:6px}
+.front{background:linear-gradient(180deg,#f6dfce,#eac4b1);clip-path:polygon(0 0,50% 60%,100% 0,100% 100%,0 100%);border-radius:6px}
+.flap{height:62%!important;inset:0 0 auto 0!important;background:linear-gradient(180deg,#f8e6d6,#efcdb9);clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .9s var(--ease);z-index:3;border-radius:6px 6px 0 0}
+.open .flap{transform:rotateX(180deg);z-index:0}
+.to{position:absolute;left:0;right:0;bottom:14%;text-align:center;font:2rem 'Pinyon Script',cursive;color:var(--wine);z-index:2}
+.seal{position:absolute;left:50%;top:54%;width:74px;height:74px;margin:-37px;padding:0;z-index:4;display:block;filter:drop-shadow(0 3px 4px #3a0a1688);animation:beat 1.6s ease-in-out infinite;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.seal.hold{animation:none}
+.seal::before{content:"";position:absolute;inset:-8px;border-radius:50%;background:conic-gradient(#ffe2b8 calc(var(--p,0)*360deg),#ffffff2a 0);-webkit-mask:radial-gradient(circle,transparent 62%,#000 64%);mask:radial-gradient(circle,transparent 62%,#000 64%)}
+.open .seal{transform:scale(.2);opacity:0;animation:none;transition:.5s;pointer-events:none}
+@keyframes beat{0%,40%,100%{transform:scale(1)}15%{transform:scale(1.14)}30%{transform:scale(.97)}}
+.tap{font-size:.9rem;color:#f4d8de;letter-spacing:.03em;text-align:center;animation:fade 2.4s ease-in-out infinite}
+@keyframes fade{50%{opacity:.4}}
+.stage.o .tap{visibility:hidden}
+
+.paper{position:fixed;z-index:2;left:50%;top:50%;width:min(94vw,540px);height:min(82svh,680px);display:flex;flex-direction:column;background:var(--ivory);color:var(--ink);border-radius:10px;box-shadow:0 40px 80px #000a,0 0 0 1px #ffffff22;overflow:hidden;opacity:0;pointer-events:none;transform:translate(-50%,-30%) scale(.9);transition:transform 1.1s var(--ease),opacity .7s}
+.reading .paper{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.reading .stage{transform:translateY(40vh) scale(.8);opacity:0;pointer-events:none}
+.bar{height:3px;background:#f0d8d4;flex:none}.bar b{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--rose));transition:width .8s var(--ease)}
+.track{flex:1;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior-x:contain}
+.track::-webkit-scrollbar{display:none}
+.page{flex:0 0 100%;scroll-snap-align:start;scroll-snap-stop:always;overflow-y:auto;padding:30px 26px 24px 54px;background:linear-gradient(90deg,transparent 40px,#e3a0ae88 40px 41px,transparent 41px),repeating-linear-gradient(transparent 0 31px,#f1dcd8 31px 32px);background-attachment:local}
+.page.c{background:none;text-align:center;padding:26px 24px;display:flex;flex-direction:column;align-items:center}
+.sal{font:2.7rem/1.1 'Pinyon Script',cursive;color:var(--rose);margin-bottom:14px}
+.page h2{font:italic 600 1.55rem 'Cormorant Garamond',serif;color:var(--wine);margin-bottom:12px}
+.page p{font:500 1.12rem/32px 'Cormorant Garamond',serif;margin-bottom:32px;text-wrap:pretty}
+.page.c p{line-height:1.5;margin-bottom:8px}
+.w{display:inline-block;white-space:pre;opacity:0;filter:blur(5px);transform:translateY(6px);transition:opacity .7s,filter .7s,transform .7s var(--ease);transition-delay:calc(var(--i)*16ms)}
+.on .w{opacity:1;filter:none;transform:none}.fast .w{transition-delay:0s!important;transition-duration:.25s}
+.promise{border-top:1px solid #e3a0ae;border-bottom:1px solid #e3a0ae;padding:6px 0;color:var(--wine)}
+.sign{font:2rem/1.2 'Pinyon Script',cursive!important;color:var(--rose);text-align:right}
+
+.big{position:relative;width:min(190px,48vw);margin:10px 0 4px;touch-action:manipulation;transition:transform .15s}
+.big svg{width:100%;display:block;overflow:visible;filter:drop-shadow(0 10px 18px #d4577a55)}
+.big:active{transform:scale(.93)}.big.beat{animation:pop .45s var(--ease)}
+.big.full{animation:beat 1.2s ease-in-out infinite}
+@keyframes pop{40%{transform:scale(1.14)}}
+#lvl{transition:transform .6s var(--ease)}
+.pct{font:600 1.1rem 'Jost',sans-serif;color:var(--rose);letter-spacing:.04em;margin-bottom:6px}
+.hint{font:.85rem 'Jost',sans-serif!important;color:#9a6a78;margin-bottom:2px!important}
+.fin{opacity:0;transform:translateY(10px);transition:.9s var(--ease);font:italic 500 1.35rem/1.45 'Cormorant Garamond',serif!important;color:var(--wine);max-height:0;overflow:hidden}
+.done .fin{opacity:1;transform:none;max-height:200px;margin-top:8px}.done .hint{display:none}
+.keep{display:none;margin:10px auto 0;padding:13px 24px;border-radius:40px;background:linear-gradient(135deg,#d4657d,#9b2447);color:#fff;font-weight:500;font-size:.9rem;box-shadow:0 8px 20px #9b244744}
+.done .keep{display:block}
+.rs{position:fixed;z-index:60;pointer-events:none;padding:7px 14px;border-radius:30px;background:#fff;color:var(--wine);font:italic 600 1.05rem 'Cormorant Garamond',serif;box-shadow:0 8px 22px #5b1a3c44;white-space:nowrap;animation:up 2s var(--ease) forwards}
+@keyframes up{0%{opacity:0;transform:translate(-50%,10px) scale(.7)}15%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-120px)}}
+.nav{flex:none;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid #f0d8d4;background:#fff8f1}
+.nav button{width:38px;height:38px;border-radius:50%;font-size:1.4rem;color:var(--rose);transition:.3s}.nav button:hover:not(:disabled){background:#f8e1e3}.nav button:disabled{opacity:.25;cursor:default}
+.dots{display:flex;gap:8px}.dots i{width:7px;height:7px;border-radius:9px;background:#e8c6cb;transition:.5s var(--ease);cursor:pointer}.dots i.a{width:22px;background:var(--rose)}
+@media(max-width:480px){.page{padding:24px 16px 20px 50px}.page p{font-size:1.06rem}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas><canvas id="fx"></canvas>
+
+<main class="stage" id="stage">
+  <div class="env" id="env">
+    <i class="back"></i><i class="flap"></i><i class="front"></i>
+    <button class="seal" id="seal" aria-label="Mantén presionado el corazón para abrir"></button>
+    <span class="to" id="to">Para ti, mi vida</span>
+  </div>
+  <p class="tap">Mantén presionado el corazón<br>para abrir este detalle para ti 💗</p>
+</main>
+
+<section class="paper" id="paper" aria-label="Carta">
+  <div class="bar"><b id="fill"></b></div>
+  <div class="track" id="track">
+    <article class="page">
+      <h1 class="sal" id="sal">Mi amor,</h1>
+      <p>Hoy cumplimos un mes... un mes a tu lado, un mes de muchas risas, de tonterías, de momentos bonitos, de conversaciones, de cariño y de mucho amor... ❤️ Y no sabes lo bonito que se siente poder decir que ya llevamos un mes juntos, que poco a poco vamos construyendo algo nuestro, algo que me hace feliz y que me llena de ilusión por todo lo que todavía nos falta vivir. Me gusta mucho la idea de poder planear muchas cosas juntos, de imaginar momentos a tu lado, de pensar en todo lo que podemos hacer, conocer y compartir, porque sinceramente, me agrada la idea de tenerte en mis planes, no solamente para hoy o para mañana, sino también para muchas cosas que quisiera vivir contigo más adelante..</p>
+    </article>
+    <article class="page">
+      <p>Y qué decirte, mi amor... siento que ya te he dicho tantas cosas, que de tantas veces que te digo cuánto te amo, a veces siento que las palabras se me quedan cortas para poder explicarte todo lo que siento por ti jeje, pero aun así quiero seguir diciéndotelo, porque nunca me voy a cansar de recordarte lo mucho que te amo y lo importante que te estás volviendo para mí. Amo tu mirada, tus ojitos tan bonitos, tu boquita, tu sonrisa, tu forma de ser, tus ocurrencias, tus enojitos, tus maneras de hablarme y hasta esas pequeñas cosas tuyas que quizá tú no notas, pero que a mí me gustan demasiado. Amo todo de ti, mi vida, incluso esas cositas que poco a poco voy descubriendo mientras te conozco más. Eres la niña de mis ojos, esa personita que se ha ganado un lugar muy bonito en mi corazón y que hoy me hace sentir tantas cosas bonitas que, sinceramente, no quisiera perder...</p>
+    </article>
+    <article class="page">
+      <p>Quiero que sepas que estoy muy feliz a tu lado, que me alegra mucho haberte conocido y que me hace feliz saber que estamos compartiendo algo tan bonito. Me gusta darme cuenta de que, a pesar del poquito tiempo que llevamos, tenemos muchas cosas en común, que coincidimos en varias cosas y que poco a poco vamos descubriendo más del uno y del otro. Me gusta conocerte, saber qué te gusta, qué cosas te hacen feliz, qué te molesta, qué te preocupa, qué sueñas y qué esperas de la vida. Quiero conocerte por completo, mi amor, no solamente en tus días bonitos, cuando estás feliz y todo va bien, sino también en esos días en los que quizá no te sientas tan bien, cuando estés cansada, preocupada o simplemente no tengas ganas de hacer nada. Quiero aprender a entenderte, saber cómo tratarte en esos momentos y encontrar la manera de hacerte sentir que conmigo también puedes estar tranquila, que no tienes que fingir estar bien cuando no lo estás y que puedes contar conmigo para lo que necesites, vale?..</p>
+    </article>
+    <article class="page">
+      <p>Sé que recién estamos cumpliendo un mes y que todavía nos falta muchísimo por conocer el uno del otro, pero precisamente eso es lo que me gusta, saber que tenemos tanto por descubrir, tantas experiencias por vivir y tantos recuerdos por empezar a construir. No quiero que nos apresuremos a vivirlo todo de golpe, quiero que disfrutemos cada etapa, cada momento, cada salida, cada conversación y hasta esas tonterías que hacemos y que quizá para otras personas no significan mucho, pero que para nosotros terminan siendo momentos especiales, porque al final, creo que de eso también se trata el amor, de disfrutar de tu compañía, de reírnos por cualquier cosa, de sentirnos cómodos siendo nosotros mismos y de encontrar felicidad en esas pequeñas cosas que hacemos juntos...</p>
+    </article>
+    <article class="page">
+      <h2>Feliz 27, primer mes, mi amor ❤️</h2>
+      <p>Que este sea el primero de muchos meses más, que sigamos acumulando momentos bonitos, riéndonos de nuestras tonterías, haciendo planes y aprendiendo a querernos cada día mejor. Gracias por formar parte de mi vida y por permitirme formar parte de la tuya. No sabes lo feliz que me hace poder compartir esto contigo y decirte que eres mi enamorada, mi niña bonita y esa personita con la que quiero seguir viviendo muchas cosas lindas ♥</p>
+    </article>
+    <article class="page c" id="last">
+      <h2>Una última cosa…</h2>
+      <p class="hint">Toca y llénalo de todo lo que siento por ti.</p>
+      <button class="big" id="big" aria-label="Llenar el corazón de amor">
+        <svg viewBox="0 0 100 92"><defs><clipPath id="hc"><path id="hp" d="M50 88C20 66 5 48 5 30 5 16 16 7 29 7c9 0 17 5 21 13 4-8 12-13 21-13 13 0 24 9 24 23 0 18-15 36-45 58z"/></clipPath></defs>
+        <use href="#hp" fill="#f6dfe3"/><g clip-path="url(#hc)"><rect id="lvl" width="100" height="92" fill="#d4577a" style="transform:translateY(92px)"/></g>
+        <use href="#hp" fill="none" stroke="#d4577a" stroke-width="2.5"/></svg>
+      </button>
+      <div class="pct" id="pct">0%</div>
+      <p class="fin">Te amo, mi vida. Feliz primer mes, mi niña bonita.</p>
+      <button class="keep" id="keep">Guardar junto a mi corazón ♥</button>
+    </article>
+  </div>
+  <nav class="nav"><button id="prev" aria-label="Anterior">‹</button><div class="dots" id="dots"></div><button id="next" aria-label="Siguiente">›</button></nav>
+</section>
+
+<script>
+// ✏️ PERSONALIZA
+const TO='Para ti, mi vida', SALUDO='Mi amor,';
+const RAZONES=['Tu mirada','Tus ojitos bonitos','Tu sonrisa','Tus ocurrencias','Tus enojitos','Tu forma de ser','Tus maneras de hablarme','La niña de mis ojos','Todo de ti'];
+const $=id=>document.getElementById(id);
+$('to').textContent=TO;$('sal').textContent=SALUDO;
+const vib=p=>navigator.vibrate&&navigator.vibrate(p);
+(function(){let p='';for(let i=0;i<72;i++){const a=i/72*6.283,r=45+Math.sin(a*9)*1.6+Math.sin(a*3+1)*2.2;p+=(50+Math.cos(a)*r).toFixed(1)+','+(50+Math.sin(a)*r).toFixed(1)+' '}
+$('seal').innerHTML=`<svg viewBox="0 0 100 100" width="100%" height="100%" aria-hidden="true"><polygon points="${p}" fill="#7a1b33"/><circle cx="50" cy="50" r="34" fill="none" stroke="#5a1024" stroke-width="2.2"/><circle cx="50" cy="50" r="30" fill="none" stroke="#a24259" stroke-width=".8" stroke-dasharray="1.5 2.5"/><path d="M50 69C34 57 28 49 28 42c0-6 4-10 10-10 5 0 9 3 12 8 3-5 7-8 12-8 6 0 10 4 10 10 0 7-6 15-22 27z" fill="#5a1024" stroke="#a24259" stroke-width=".8"/></svg>`})();
+
+
+/* ---------- corazones en canvas (fondo + efectos) ---------- */
+const bg=$('bg'),fx=$('fx'),bx=bg.getContext('2d'),fc=fx.getContext('2d'),COL=['#ff5d7d','#ff8fa3','#e8467c','#ffb3c1','#f2b58a'];
+let W,H,mx=-999,my=-999,amb=[],sp=[];const R=(a,b)=>a+Math.random()*(b-a);
+function rs(){const d=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;for(const [c,x] of [[bg,bx],[fx,fc]]){c.width=W*d;c.height=H*d;x.setTransform(d,0,0,d,0,0)}}
+function heart(c,x,y,s,r,col,a){c.save();c.translate(x,y);c.rotate(r);c.globalAlpha=a;c.fillStyle=col;c.beginPath();c.moveTo(0,-.2*s);c.bezierCurveTo(0,-.5*s,-.5*s,-.5*s,-.5*s,-.2*s);c.bezierCurveTo(-.5*s,.1*s,0,.3*s,0,.5*s);c.bezierCurveTo(0,.3*s,.5*s,.1*s,.5*s,-.2*s);c.bezierCurveTo(.5*s,-.5*s,0,-.5*s,0,-.2*s);c.fill();c.restore()}
+const mk=r=>({x:R(0,W),y:r?R(0,H):H+30,s:R(12,38),v:R(.9,2.4),ph:R(0,6.3),c:COL[Math.random()*5|0],r:R(-.4,.4)});
+function init(){rs();amb=Array.from({length:W<600?32:48},()=>mk(1))}
+function burst(x,y,n,big){for(let i=0;i<n&&sp.length<320;i++){const a=R(0,6.28),v=R(1.5,big?7:3.5);sp.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-1.5,s:R(10,big?30:18),r:R(-.5,.5),l:1,d:R(.010,.02),c:COL[Math.random()*5|0]})}}
+function loop(t){bx.clearRect(0,0,W,H);fc.clearRect(0,0,W,H);
+ for(const p of amb){p.y-=p.v;p.ph+=.02;p.x+=Math.sin(p.ph)*.5;const dx=p.x-mx,dy=p.y-my,d=Math.hypot(dx,dy);if(d<150){const f=(1-d/150)*4;p.x+=dx/d*f;p.y+=dy/d*f}
+  if(p.y<-40)Object.assign(p,mk(0));heart(bx,p.x,p.y,p.s*(1+.05*Math.sin(t/260+p.ph)),p.r+Math.sin(p.ph)*.15,p.c,Math.min(1,p.y/(H*.35))*.8)}
+ sp=sp.filter(p=>p.l>0);for(const p of sp){p.x+=p.vx;p.y+=p.vy;p.vx*=.985;p.vy=p.vy*.985-.015;p.l-=p.d;heart(fc,p.x,p.y,p.s,p.r,p.c,Math.max(0,p.l))}
+ requestAnimationFrame(loop)}
+addEventListener('resize',rs);init();requestAnimationFrame(loop);
+let lt=0;addEventListener('pointermove',e=>{mx=e.clientX;my=e.clientY;const n=Date.now();if(n-lt>55&&sp.length<300){lt=n;sp.push({x:mx,y:my,vx:R(-.5,.5),vy:R(-1.2,-.4),s:R(8,15),r:R(-.4,.4),l:1,d:.025,c:COL[Math.random()*5|0]})}});
+addEventListener('pointerleave',()=>{mx=my=-999});
+addEventListener('pointerdown',e=>burst(e.clientX,e.clientY,9));
+
+/* ---------- palabras que aparecen suavemente ---------- */
+const pages=[...document.querySelectorAll('.page')];
+pages.forEach(pg=>{let n=0;pg.querySelectorAll('h1,h2,p:not(.fin):not(.hint)').forEach(el=>{const t=el.textContent;el.setAttribute('aria-label',t);el.textContent='';
+ t.split(/(\s+)/).forEach(w=>{if(!w)return;const s=document.createElement('span');s.className='w';s.setAttribute('aria-hidden','true');s.style.setProperty('--i',n++);s.textContent=w;el.appendChild(s)})});
+ pg.addEventListener('click',()=>pg.classList.add('fast'))});
+
+/* ---------- navegación ---------- */
+const track=$('track'),dots=pages.map((_,k)=>{const d=document.createElement('i');d.onclick=()=>go(k);$('dots').appendChild(d);return d});let cur=-1;
+function show(i){if(i===cur)return;cur=i;pages[i].classList.add('on');dots.forEach((d,k)=>d.classList.toggle('a',k===i));$('fill').style.width=(i+1)/pages.length*100+'%';$('prev').disabled=i===0;$('next').disabled=i===pages.length-1}
+function go(i){track.scrollTo({left:Math.max(0,Math.min(pages.length-1,i))*track.clientWidth})}
+let raf;track.addEventListener('scroll',()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>show(Math.round(track.scrollLeft/track.clientWidth)))},{passive:true});
+$('prev').onclick=()=>go(cur-1);$('next').onclick=()=>go(cur+1);
+addEventListener('keydown',e=>{if(document.body.classList.contains('reading')){if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1)}});
+
+/* ---------- sobre 3D + sello (mantener presionado) ---------- */
+const env=$('env'),seal=$('seal'),stage=$('stage');
+addEventListener('pointermove',e=>{if(document.body.classList.contains('reading'))return;env.style.setProperty('--ry',((e.clientX/W-.5)*16)+'deg');env.style.setProperty('--rx',(-(e.clientY/H-.5)*12)+'deg')});
+let hr,t0,beatT=0;
+function openEnv(){env.classList.add('open');stage.classList.add('o');const r=seal.getBoundingClientRect();burst(r.left+32,r.top+32,30,1);vib([30,60,30]);
+ setTimeout(()=>{document.body.classList.add('reading');track.style.scrollBehavior='auto';track.scrollLeft=0;track.style.scrollBehavior='';show(0);burst(W/2,H*.7,28,1)},950)}
+function stop(){cancelAnimationFrame(hr);seal.classList.remove('hold');seal.style.setProperty('--p',0);seal.style.transform=''}
+seal.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(env.classList.contains('open'))return;seal.classList.add('hold');t0=performance.now();
+ const f=t=>{const p=Math.min(1,(t-t0)/1100);seal.style.setProperty('--p',p);seal.style.transform=`scale(${1+p*.18}) rotate(${Math.sin(t/35)*p*7}deg)`;
+  if(t-beatT>260-p*120){beatT=t;vib(12);const r=seal.getBoundingClientRect();burst(r.left+32,r.top+32,1)}
+  if(p>=1){stop();openEnv();return}hr=requestAnimationFrame(f)};hr=requestAnimationFrame(f)});
+['pointerup','pointerleave','pointercancel'].forEach(ev=>seal.addEventListener(ev,stop));
+seal.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openEnv()}});
+
+/* ---------- corazón final interactivo ---------- */
+let lv=0,ri=0;const big=$('big');
+big.onclick=e=>{if(lv>=1)return;lv=Math.min(1,lv+.09);$('lvl').style.transform=`translateY(${92*(1-lv)}px)`;$('pct').textContent=Math.round(lv*100)+'%';
+ big.classList.remove('beat');void big.offsetWidth;big.classList.add('beat');vib(15);
+ const r=big.getBoundingClientRect(),b=document.createElement('div');b.className='rs';b.textContent=RAZONES[ri++%RAZONES.length];
+ b.style.left=r.left+r.width/2+R(-70,70)+'px';b.style.top=r.top+R(0,r.height*.6)+'px';document.body.appendChild(b);setTimeout(()=>b.remove(),2100);
+ burst(r.left+r.width/2,r.top+r.height/2,12);
+ if(lv>=1){$('last').classList.add('done');big.classList.add('full');vib([40,80,40,80,80]);[0,300,700].forEach(d=>setTimeout(()=>burst(R(W*.2,W*.8),R(H*.25,H*.6),40,1),d))}};
+$('keep').onclick=()=>{burst(W/2,H/2,60,1);setTimeout(()=>{document.body.classList.remove('reading');env.classList.remove('open');stage.classList.remove('o');
+ pages.forEach(p=>p.classList.remove('on','fast'));cur=-1;lv=0;ri=0;$('lvl').style.transform='translateY(92px)';$('pct').textContent='0%';$('last').classList.remove('done');big.classList.remove('full')},900)};
+</script>
+</body>
+</html>
